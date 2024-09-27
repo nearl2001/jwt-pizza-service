@@ -35,6 +35,11 @@ describe('franchiseRouter testing suite', () => {
         const authToken = result._body.token
         const userId = result._body.user.id
 
+        wait(500)
+
+        result = await request(app).get(`/api/franchise/${userId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`)
+        expect(result._body).toEqual([])
+
         result = await request(app).post('/api/franchise').set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({name: 'pizzaPocket', admins: [{email: 'biggyCheese@byu.edu'}]})
         expect(result._body.name).toEqual('pizzaPocket')
 
@@ -42,7 +47,6 @@ describe('franchiseRouter testing suite', () => {
         expect(result._body[0].name).toEqual('pizzaPocket')
 
         result = await request(app).get(`/api/franchise/${userId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`)
-        console.log(JSON.stringify(result))
         expect(result._body[0].name).toEqual('pizzaPocket')
 
         result = await request(app).delete('/api/auth').set('Authorization', `Bearer ${authToken}`)
