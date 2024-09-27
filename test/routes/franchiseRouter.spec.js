@@ -34,6 +34,7 @@ describe('franchiseRouter testing suite', () => {
     test('test adding franchise then getting it from main list and specifically by user', async () => {
         // first log in as admin to get token
         let result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"biggyCheese@byu.edu", password:"betYouveNeverSeenThisPassword"})
+        console.log(JSON.stringify(result._body))
         const authToken = result._body.token
         const userId = result._body.user.id
 
