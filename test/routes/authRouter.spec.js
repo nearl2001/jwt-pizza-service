@@ -15,8 +15,12 @@ describe('authentication routing tests', () => {
         let result = await request(app).post('/api/auth').set('Content-Type', 'application/json').send({name:"pizza diner", email:"d@jwt.com", password:"diner"})
         expect(result._body.user.name).toEqual('pizza diner')
 
+        wait(500)
+
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"d@jwt.com", password:"diner"})
         expect(result._body.user.name).toEqual('pizza diner')
+
+        wait(500)
 
         result = await request(app).delete('/api/auth').set('Authorization', `Bearer ${result._body.token}`)
         expect(result._body.message).toEqual('logout successful')
@@ -35,12 +39,19 @@ describe('authentication routing tests', () => {
             roles: [{ role: Role.Admin }]
         }
         await database.DB.addUser(testAdminUser)
+
+        wait(1500)
+
         // Get an admin's credentials
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"administrator@byu.edu", password:"aSuperSecurePassword"})
         const authToken = result._body.token
 
+        wait(500)
+
         result = await request(app).put(`/api/auth/${Number(userId)}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({email:"newLogin@jwt.com", password:"ooSoSecure"})
         expect(result._body.name).toEqual('Nik Earl')
+
+        wait(1000)
 
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"newLogin@jwt.com", password:"ooSoSecure"})
         expect(result._body.user.name).toEqual('Nik Earl')
@@ -52,6 +63,8 @@ describe('authentication routing tests', () => {
         expect(result._body.user.name).toEqual('Nik Earl')
         const userId = result._body.user.userId
         const authToken = result._body.token
+
+        wait(1000)
 
         result = await request(app).put(`/api/auth/${userId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({email:"newLogin@jwt.com", password:"ooSoSecure"})
         expect(result.status).toEqual(403)
@@ -67,3 +80,7 @@ describe('authentication routing tests', () => {
         expect(result.status).toEqual(400)
     })
 })
+
+function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }

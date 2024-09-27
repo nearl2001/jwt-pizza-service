@@ -27,6 +27,8 @@ describe('franchiseRouter testing suite', () => {
         }
         await database.DB.addUser(testAdminUser)
         await database.DB.addUser(testLayUser)
+
+        wait(1500)
     })
 
     test('test adding franchise then getting it from main list and specifically by user', async () => {
@@ -40,14 +42,22 @@ describe('franchiseRouter testing suite', () => {
         result = await request(app).get(`/api/franchise/${userId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`)
         expect(result._body).toEqual([])
 
+        wait(500)
+
         result = await request(app).post('/api/franchise').set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({name: 'pizzaPocket', admins: [{email: 'biggyCheese@byu.edu'}]})
         expect(result._body.name).toEqual('pizzaPocket')
+
+        wait(500)
 
         result = await request(app).get('/api/franchise')
         expect(result._body[0].name).toEqual('pizzaPocket')
 
+        wait(500)
+
         result = await request(app).get(`/api/franchise/${userId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`)
         expect(result._body[0].name).toEqual('pizzaPocket')
+
+        wait(500)
 
         result = await request(app).delete('/api/auth').set('Authorization', `Bearer ${authToken}`)
         expect(result._body.message).toEqual('logout successful')
@@ -56,6 +66,8 @@ describe('franchiseRouter testing suite', () => {
     test('user isnt allowed to add a franchise', async () => {
         let result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"smallBoiDiner@byu.edu", password:"iveSeenThisPassword"})
         const authToken = result._body.token
+
+        wait(500)
 
         result = await request(app).post('/api/franchise').set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({name: 'pizzaPocket', admins: [{email: 'biggyCheese@byu.edu'}]})
         expect(result.status).toEqual(403)
@@ -69,12 +81,18 @@ describe('franchiseRouter testing suite', () => {
         let result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"biggyCheese@byu.edu", password:"betYouveNeverSeenThisPassword"})
         let adminAuthToken = result._body.token
 
+        wait(500)
+
         result = await request(app).post('/api/franchise').set('Content-Type', 'application/json').set('Authorization', `Bearer ${adminAuthToken}`).send({name: 'theCoolest', admins: [{email: 'biggyCheese@byu.edu'}]})
         expect(result._body.name).toEqual('theCoolest')
         const franchiseId = result._body.id
 
+        wait(500)
+
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"smallBoiDiner@byu.edu", password:"iveSeenThisPassword"})
         const dinerAuthToken = result._body.token
+
+        wait(500)
 
         result = await request(app).delete(`/api/franchise/${franchiseId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${dinerAuthToken}`)
         expect(result.status).toEqual(403)
@@ -82,9 +100,13 @@ describe('franchiseRouter testing suite', () => {
         result = await request(app).delete('/api/auth').set('Authorization', `Bearer ${dinerAuthToken}`)
         expect(result._body.message).toEqual('logout successful')
 
+        wait(500)
+
         result = await request(app).delete(`/api/franchise/${franchiseId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${adminAuthToken}`)
         expect(result._body.message).toEqual('franchise deleted')
 
+        wait(500)
+        
         result = await request(app).delete('/api/auth').set('Authorization', `Bearer ${adminAuthToken}`)
         expect(result._body.message).toEqual('logout successful')
     })
@@ -97,12 +119,18 @@ describe('franchiseRouter testing suite', () => {
         let result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"biggyCheese@byu.edu", password:"betYouveNeverSeenThisPassword"})
         const authToken = result._body.token
 
+        wait(500)
+
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"smallBoiDiner@byu.edu", password:"iveSeenThisPassword"})
         const dinerAuthToken = result._body.token
+
+        wait(500)
 
         result = await request(app).post('/api/franchise').set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({name: 'anotherOne', admins: [{email: 'biggyCheese@byu.edu'}]})
         expect(result._body.name).toEqual('anotherOne')
         const franchiseId = result._body.id
+
+        wait(500)
 
         result = await request(app).post(`/api/franchise/${franchiseId}/store`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${dinerAuthToken}`).send({franchiseId, name:"SLC"})
         expect(result.status).toEqual(403)
@@ -110,6 +138,8 @@ describe('franchiseRouter testing suite', () => {
         result = await request(app).post(`/api/franchise/${franchiseId}/store`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${authToken}`).send({franchiseId, name:"SLC"})
         expect(result._body.name).toEqual('SLC')
         const storeId = result._body.id
+
+        wait(500)
 
         result = await request(app).delete(`/api/franchise/${franchiseId}/store/${storeId}`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${dinerAuthToken}`)
         expect(result.status).toEqual(403)

@@ -31,8 +31,12 @@ describe('franchiseRouter testing suite', () => {
         await database.DB.addUser(testAdminUser)
         await database.DB.addUser(testLayUser)
 
+        wait(1500)
+
         let result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"nikkiminaj@byu.edu", password:"starshipsAreMeantToFly"})
         adminAuthToken = result._body.token
+
+        wait(500)
 
         result = await request(app).put('/api/auth').set('Content-Type', 'application/json').send({email:"reallySmolBoi@byu.edu", password:"itsReallyLateAsImWritingThis"})
         dinerAuthToken = result._body.token
@@ -44,6 +48,8 @@ describe('franchiseRouter testing suite', () => {
 
         result = await request(app).put('/api/order/menu').set('Content-Type', 'application/json').set('Authorization', `Bearer ${adminAuthToken}`).send({ title: "Student", description: "No topping, no sauce, just carbs", image: "pizza9.png", price: 0.0001 })
         expect(result._body[0].title).toEqual('Student')
+
+        wait(500)
 
         result = await request(app).get('/api/order/menu')
         expect(result._body[0].title).toEqual('Student')
@@ -67,6 +73,8 @@ describe('franchiseRouter testing suite', () => {
         expect(result._body.name).toEqual('Le Za')
         const franchiseId = result._body.id
 
+        wait(500)
+
         result = await request(app).post(`/api/franchise/${franchiseId}/store`).set('Content-Type', 'application/json').set('Authorization', `Bearer ${adminAuthToken}`).send({franchiseId, name:"Provo"})
         expect(result._body.name).toEqual('Provo')
         const storeId = result._body.id
@@ -78,6 +86,8 @@ describe('franchiseRouter testing suite', () => {
         result = await request(app).post('/api/order').set('Content-Type', 'application/json').set('Authorization', `Bearer ${dinerAuthToken}`).send({franchiseId, storeId, items:[{ menuId, description: "The Sacred Almond Pizza", price: 0.05 }]})
         console.log(JSON.stringify(result._body))
         expect(result._body.jwt).toBeDefined()
+
+        wait(500)
 
         result = await request(app).get('/api/order').set('Content-Type', 'application/json').set('Authorization', `Bearer ${dinerAuthToken}`)
         console.log(JSON.stringify(result._body))
