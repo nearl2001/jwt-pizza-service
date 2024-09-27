@@ -9,6 +9,8 @@ class DB {
     this.initialized = this.initializeDatabase();
   }
 
+  // VUNLERABILITY NOTE. If just anyone can make an Admin account, they can do literally anything lol
+
   async getMenu() {
     const connection = await this.getConnection();
     try {
