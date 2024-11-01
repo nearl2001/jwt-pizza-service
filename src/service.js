@@ -4,6 +4,7 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
+const metrics = require('./metrics.js')
 
 const app = express();
 app.use(express.json());
@@ -17,6 +18,19 @@ app.use((req, res, next) => {
 });
 
 const apiRouter = express.Router();
+
+apiRouter.use((req, res, next) => {
+  const originalSend = res.send;
+
+  res.send = function (body) {
+    metrics.recordValidRequest(req, { ...res, body });
+    
+    originalSend.call(this, body);
+  };
+
+  next();
+});
+
 app.use('/api', apiRouter);
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/order', orderRouter);
@@ -46,7 +60,7 @@ app.use('*', (req, res) => {
 // Default error handler for all exceptions and errors.
 app.use((err, req, res, next) => {
   res.status(err.statusCode ?? 500).json({ message: err.message, stack: err.stack });
-  next();
+  next()
 });
 
 module.exports = app;
